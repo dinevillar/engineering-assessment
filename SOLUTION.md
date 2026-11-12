@@ -56,7 +56,10 @@ Reporting week Sep 28–Oct 4 vs. Sep 21–27, as of Oct 6 12:00 UTC. Figures ar
   - Loading: a skeleton for the first load; on a switch, the previous case is dimmed under a loading banner, and in-flight requests are aborted so a fast switch never shows stale data.
   - Errors: message plus Retry, including when Python or the exports are missing (503 `SOURCE_UNAVAILABLE`).
   - Needs attention: a red banner explains what changed, report generation is blocked, and an old report is marked *Outdated: do not send*.
-- The layout is responsive, with no horizontal page scroll at 390px. Colours are tokens with light and dark themes, and the report prints cleanly.
+- **Above the tabs:** a three-step tracker (Investigate → Decide → Report) driven by the backend case status, and four headline figures: verified subscriptions with coverage, comparable change, draft vs. publisher, and evidence status. Together they answer "can this go out?" before any detail.
+- **Case list:** grouped by brand, with a status dot (not reviewed / decision saved / report ready / evidence changed) and a legend.
+- **Theme:** System / Light / Dark toggle in the top bar. The choice is remembered per browser and applied before first paint, so the page never flashes. Every colour is a token with a dark counterpart.
+- The decision rail scrolls on its own, so Save and Generate stay reachable on short screens. The layout is responsive, with no horizontal page scroll at 390px. Icons are inline SVG (no dependency), and the report prints cleanly.
 
 ## Architecture and data flow
 

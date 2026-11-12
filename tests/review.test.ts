@@ -47,6 +47,8 @@ describe('review cases on the bundled data', () => {
     assert.equal(ev.model.accepted, false);
     assert.equal(ev.policy.action, 'hold');
     assert.equal(view.options.find(o => o.outcome === 'approve_expansion')!.allowed, false);
+    // Waiting for the publisher's complete week is not an internal data fix.
+    assert.doesNotMatch(view.options.find(o => o.outcome === 'hold_pending_data')!.reason, /^Recommended/);
 
     const base: DecisionInput = { outcome: 'approve_expansion', reason: 'Client asked for the expansion in the handover.', evidenceFingerprint: ev.fingerprint, expectedVersion: 0, acknowledgeLimitations: true };
     await rejects(service.saveDecision(view.case.caseId, base), 'UNSUPPORTED_APPROVAL');

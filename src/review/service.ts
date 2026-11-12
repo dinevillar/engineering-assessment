@@ -126,15 +126,26 @@ export class ReviewService {
   }
 }
 
+/** Issues that need our data team to fix something (as opposed to waiting for the publisher,
+ * e.g. an incomplete week, or a draft error already corrected by this review). */
+export const DATA_FIX_CODES = new Set([
+  'incomplete_import', 'superseded_report_selected', 'pipeline_report_missing', 'mart_mismatch',
+  'publisher_report_missing', 'publisher_export_inconsistent', 'stale_import', 'import_control_total_mismatch',
+]);
+
 export function outcomeOptions(ev: CaseEvaluation): OutcomeOption[] {
-  const hasDataProblems = ev.issues.some(i => i.severity !== 'warning' && !i.code.startsWith('draft_'));
+  const hasDataProblems = ev.issues.some(i => DATA_FIX_CODES.has(i.code));
+  const dataBlocks = ev.issues.some(i => DATA_FIX_CODES.has(i.code) && i.severity === 'blocking');
+  const blockedBecause = ev.policy.rationale.replace(/^Hold:\s*/, '').split(/(?<=\.)\s/)[0];
   return [
     { outcome: 'approve_expansion', label: OUTCOME_LABELS.approve_expansion, allowed: ev.policy.expansionSupported,
-      reason: ev.policy.expansionSupported ? ev.policy.rationale : `Not available. ${ev.policy.rationale}` },
+      reason: ev.policy.expansionSupported ? ev.policy.rationale : `Not available: ${blockedBecause.charAt(0).toLowerCase()}${blockedBecause.slice(1)}` },
     { outcome: 'hold', label: OUTCOME_LABELS.hold, allowed: true,
       reason: ev.policy.action === 'hold' ? 'Supported by the evidence.' : 'Allowed: a reviewer may always hold.' },
     { outcome: 'hold_pending_data', label: OUTCOME_LABELS.hold_pending_data, allowed: true,
-      reason: hasDataProblems ? 'Recommended while source data issues are open.' : 'No open data issues detected; use only if you found one.' },
+      reason: hasDataProblems && dataBlocks ? 'Recommended: an internal data issue blocks verification and must be fixed upstream.'
+        : hasDataProblems ? 'Optional: an import needs fixing upstream, but the publisher figure already corrects it.'
+        : 'No internal data issue detected; use only if you found one.' },
   ];
 }
 
