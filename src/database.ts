@@ -8,7 +8,8 @@ import path from 'node:path';
 function resolveRoot(): string {
   if (process.env.STONECUTTER_ROOT) return process.env.STONECUTTER_ROOT;
   try {
-    const here = fileURLToPath(new URL('../', import.meta.url));
+    // path.resolve rather than new URL('../', import.meta.url): bundlers treat the latter as an asset.
+    const here = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
     if (existsSync(path.join(here, 'data', 'manifest.json'))) return here;
   } catch { /* not a file URL when bundled */ }
   return process.cwd();

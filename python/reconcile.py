@@ -87,6 +87,15 @@ def _week(evidence, week, issues):
                    f'{label}: import {chosen["reportId"]} header declares {chosen["declaredOffers"]} offers / '
                    f'{chosen["declaredSubscriptions"]:,} but {chosen["loadedOffers"]} / '
                    f'{chosen["activeSubscriptions"]:,} were loaded.', chosen_ids)
+    for other in snapshots:
+        exported = other.get('exported') or {}
+        if (not other.get('selected') and exported.get('supersededBy')
+                and other['revision'] > chosen['revision'] and other['generatedAt'] < chosen['generatedAt']):
+            _issue(issues, 'superseded_reimport', 'warning', week,
+                   f'{label}: import {other["reportId"]} (revision {other["revision"]}) is a late re-import of '
+                   f'{other["publisherReportId"]}, which the publisher superseded with {exported["supersededBy"]}. '
+                   'It is ignored; ordering by import revision alone would have selected it.',
+                   [other['reportId'], other['publisherReportId']])
     if pipeline is not None and pipeline != chosen['activeSubscriptions']:
         _issue(issues, 'mart_mismatch', 'blocking', week,
                f'{label}: weekly mart shows {pipeline:,} but its source report holds '
