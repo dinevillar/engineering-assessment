@@ -1,9 +1,19 @@
 import { PGlite } from '@electric-sql/pglite';
 import { readFile, mkdir, stat } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
-export const ROOT = fileURLToPath(new URL('../', import.meta.url));
+/** Project root. Falls back to the working directory when bundled (e.g. by Next.js). */
+function resolveRoot(): string {
+  if (process.env.STONECUTTER_ROOT) return process.env.STONECUTTER_ROOT;
+  try {
+    const here = fileURLToPath(new URL('../', import.meta.url));
+    if (existsSync(path.join(here, 'data', 'manifest.json'))) return here;
+  } catch { /* not a file URL when bundled */ }
+  return process.cwd();
+}
+export const ROOT = resolveRoot();
 export const AS_OF = '2026-10-06T12:00:00Z';
 export const PERIOD_START = '2026-09-28';
 export const PERIOD_END = '2026-10-04';
