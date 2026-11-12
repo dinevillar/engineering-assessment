@@ -22,7 +22,7 @@ export function reconcile(evidence: Evidence): { evidence: Evidence; quality: Qu
   let output;
   try { output = JSON.parse(result.stdout); }
   catch { throw new Error('Python reconciliation returned invalid JSON.'); }
-  if (!output.evidence || !['ready', 'insufficient'].includes(output.quality?.status) || !Array.isArray(output.quality.reasons)) {
+  if (!output.evidence || !['ready', 'insufficient'].includes(output.quality?.status) || !Array.isArray(output.quality.reasons) || !Array.isArray(output.quality.issues)) {
     throw new Error('Python reconciliation returned an invalid result.');
   }
   return output;
